@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="ja">
+<title>CED monitor</title>
+<meta http-equiv="refresh" content="30;URL=" charset="utf-8">
+<style> 
+  table {
+      border-cllapse: collapse;
+  }
+  th {
+      border: 1px lightgray solid;
+      text-align: center;
+      padding: 10px 20px 10px 20px;
+      color: white;
+      background-color: #3cb371;
+  }
+  td {
+      border: 1px lightgray solid;
+      text-align: center;
+      padding: 0px 20px 0px 20px;
+  }
+  .GOOD {
+      color: white;
+      background-color: #4169e1;
+      /*font-weight: bold;*/
+  }
+  .BAD {
+      color: white;
+      background-color: #dc143c;
+      /*font-weight: bold;*/
+  }
+  .STUCK {
+      color: white;
+      background-color: #ff00ff;
+      /*font-weight: bold;*/
+  }
+  .REFUSED {
+      color: black;
+      background-color: #ff8c00;
+      /*font-weight: bold;*/
+  }
+  .numeric {
+      text-align: right;
+  }
+  .footer {
+      padding: 20px 0px 0px 0px;
+  }
+</style
+{% block body %}
+<center>
+  <span style="font-size:150%;">遠隔専用端末利用状況({{ localtime }})</span>
+  <table>
+    <tr>
+      <th>端末</th>
+      <th>状態</th>
+      <th>ユーザ数</th>
+      <th>平均負荷</th>
+      <th>メモリ残量</th>
+      <!-- <th>last state change time</th> -->
+    </tr>
+    {% for status in host_status %}
+    <tr>
+      <td>{{ status[0] }}</td>
+      <td class="{{ status[1] }}">{{ status[1] }}</td>
+      <td class="numeric">{{ status[2] }}</td>
+      <td><span style="background:{{ status[5] }}">　</span> {{ status[3] }}　</td>
+      <!-- <td>{{ status[4] }}</td> -->
+      <td>{{ status[6] }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+</center>
+<!-- <div class="footer">最終更新時刻: {{ localtime }}</div> -->
+{% endblock %}
+</html>
