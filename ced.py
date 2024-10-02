@@ -1,5 +1,5 @@
 # ----------------------------------------------------------------------
-# CED machine.
+# CED GPUServer.
 # ----------------------------------------------------------------------
 import os
 import time
@@ -36,6 +36,8 @@ class CEDHost:
     WATCHER_WAIT = 10            # XXX
     WATCHER_TOLERANCE = 5       # XXX
 
+    GET_GPUSTATUS_CMD = "nvidia-smi --query-gpu=index,name,utilization.gpu,memory.used,memory.total --format=csv"
+
     
     def __init__(self, color, id, observer=on_change):
         self.id = id
@@ -45,13 +47,11 @@ class CEDHost:
         self.fqdn = self.name + ".ced.cei.uec.ac.jp"
         self.whocmd = f"ssh {CEDHost.SSHOPTIONS} -q {self.fqdn} {CEDHost.WHOCMD}"
         self.memcmd = f"ssh {CEDHost.SSHOPTIONS} -q {self.fqdn} {CEDHost.MEMCMD}"
-        self.gpulogcmd_path = "~/gpu_log/loggpu.sh"
-        self.gpulogcsv_path = f"./gpulog/csv/gpu0{self.id}.csv"
         self.status = Status.UNKNOWN
         self.n_users = (0, 0)
         self.load = None
         self.mem = None
-        self.gpulog = None
+        self.gpustatus = None
         self.watcher = threading.Thread(target=self.watch, name=self.name+'-watcher')
         self.updater = threading.Thread(target=self.update, name=self.name+'-updater')
         self.updated = False
@@ -76,12 +76,11 @@ class CEDHost:
 
         try:
             client.connect(self.fqdn, port, self.username, pkey=rsa_key)
-            command = f"bash {self.gpulogcmd_path}"
+            command = CEDHost.GET_GPUSTATUS_CMD
             stdin,stdout,stderr = client.exec_command(command)
             output = stdout.read().decode("utf-8")
-            error = stdout.read().decode("utf-8")
-
-            return output, error
+            
+            return output
         finally:
             client.close()
 
@@ -118,17 +117,8 @@ class CEDHost:
                             if line.startswith('Mem:'):
                                 self.mem = line.split()[-1]
                                 break
-                    #gpu_watch
-                    output, error = self.logging_gpu(22)
-                    print(output)
-                    with open(self.gpulogcsv_path, mode="r",newline="", encoding="utf-8") as f:
-                        rows = csv.reader(f)
-                        for i, row in enumerate(rows):
-                            if i == 0:
-                                self.gpulog = []
-                            self.gpulog.append(row)
-                            
-                    
+                    #get status of gpus
+                    self.gpustatus = self.logging_gpu(22)     
 
             self.updated = True
                     

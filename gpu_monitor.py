@@ -63,14 +63,8 @@ def on_status_change(host, status):
                                 load_color,
                                 available_memory)
     
-    log = host.gpulog
-    gpu_status[host.id-SNO] = (host.name,
-                               [row[1] for row in log],
-                               [row[2] for row in log],
-                               [row[3] for row in log],
-                               [row[4] for row in log],
-                               [row[5] for row in log]
-                               )
+    rows = [a.split(",") for a in host.gpustatus.split("\n")[:-1]]      #なぜか最後に"\n"が2つ入っていたので最後に空文字の要素ができてしまう。それを削除して整形
+    gpu_status[host.id-SNO] = (host.name, *[[row[i] for row in rows] for i in range(len(rows[0]))])     #row[0]は表頭で各列のカテゴリ名が入ってる
 
 hosts = [CEDHost("gpu", i, on_status_change) for i in range(SNO, ENO+1)]
 
