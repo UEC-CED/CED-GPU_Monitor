@@ -5,11 +5,12 @@ CEDのGPUサーバー(gpu01~04)の利用状況をモニターするためのプ�
 
 
 
-##実行手順
-###リポジトリをクローンする
+## 実行手順
+### リポジトリをクローンする
     $git clone https://github.com/UEC-CED/CED-GPU_Monitor.git
-###プログラムの実行
+### プログラムの実行
 基本的にはbrown01で実行してください。Anacondaのbase環境で動きます。
+
     $###:~/CED-GPUMomitor/
     $python monitor.py
 
@@ -28,5 +29,5 @@ CEDのGPUサーバー(gpu01~04)の利用状況をモニターするためのプ�
     $nohup python gpu_monitor.py &
 
 実行後、<http://172.21.94.201:23456>にアクセスすることで利用状況を確認することができます。
-##プログラムの停止
+## プログラムの停止
     $ps aux | grep gpu_monitor.py | grep -v grep | swk '{print $2}' | xargs kill 
